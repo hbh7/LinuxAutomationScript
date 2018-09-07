@@ -110,7 +110,7 @@ function f_2_6 { # 2.6 - Set up Autologin
 	sudo touch /etc/systemd/system/getty@tty1.service.d/override.conf
 	echo "[Service]" | sudo tee --append /etc/systemd/system/getty@tty1.service.d/override.conf
 	echo "ExecStart=" | sudo tee --append /etc/systemd/system/getty@tty1.service.d/override.conf
-	echo "ExecStart=-/sbin/agetty -a hbh7 --noclear %I $TERM" | sudo tee --append /etc/systemd/system/getty@tty1.service.d/override.conf
+	echo "ExecStart=-/sbin/agetty -a mastermind63 --noclear %I $TERM" | sudo tee --append /etc/systemd/system/getty@tty1.service.d/override.conf
 	sudo systemctl daemon-reload
 }
 
