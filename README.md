@@ -3,7 +3,8 @@ My ./las for lots of common VM tasks. Built for Ubuntu 18.04 but probably will w
 
 
 ## Installation
-```wget hbh7.com/dl/las
+```
+wget hbh7.com/dl/las
 chmod +x ./las 
 ./las
 ```
