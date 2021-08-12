@@ -1,5 +1,5 @@
 #!/bin/bash
-version="4.9"
+version="7.3"
 
 InputArg=$1
 if [ -z "$InputArg" ] #if no args passed, display menu
@@ -29,7 +29,7 @@ then
 	echo "2.13 - Passwordless sudo"
 	echo "2.14 - Sudo Insults"
 	echo "2.15 - Install QEMU Guest Agent" sudo apt-get install qemu-guest-agent
-	echo "2.16 - Add bash aliases"
+	echo "2.16 - Bash aliases, options"
 	echo "2.17 - Remove /boot partition"
 	echo "2.18 - Set timezone"
 	echo "2.19 - Set up APT Cache server"
@@ -37,6 +37,11 @@ then
 	echo "2.21 - Set Swappiness to 1"
 	echo "2.22 - Prefer IPV4"
 	echo "2.23 - Clean up boot process"
+	echo "2.24 - Retain logs from before current boot"
+	echo "2.25 - Set up NTP"
+	echo "2.26 - Proxmox VM Hotplug"
+    echo "2.27 - vim Options"
+    echo "2.28 - tmux Options"
 
 	read input_variable
 else
@@ -66,6 +71,11 @@ function f_1_1 { # Initial VM Setup Tasks
 	f_2_20 # Disable unattended upgrades
 	f_2_21
 	f_2_22
+    f_2_23
+    f_2_24
+    f_2_25 # NTP
+    f_2_27
+    f_2_28
 }
 
 function f_1_2 { # Disk Cleanup and Setting Optomization
@@ -94,8 +104,6 @@ function f_2_2 { # 2.2 - Apt Full Upgrade
 	sudo apt-get update
 	sudo apt-get upgrade -y
 	sudo apt-get dist-upgrade -y
-	#sudo do-release-upgrade 
-	#sudo do-release-upgrade -d
 }
 
 function f_2_3 { # 2.3 - Set do-release-upgrade to normal
@@ -108,7 +116,7 @@ function f_2_4 { # 2.4 - Zero free space
 }
 
 function f_2_5 { # 2.5 - Install Tools (and fix vnstat config)
-	sudo apt-get update && sudo apt-get install cifs-utils htop iotop vnstat tmux ncdu dfc rsync unzip zip openssh-server make git vim curl jq cowsay fortune sl cmatrix wget net-tools traceroute -y
+	sudo apt-get update && sudo apt-get install cifs-utils htop iotop vnstat tmux ncdu dfc rsync unzip zip openssh-server make git vim curl jq cowsay fortune sl cmatrix wget net-tools traceroute gcc g++ -y
 	sudo sed -i 's/eth0/ens18/g' /etc/vnstat.conf
 }
 
@@ -126,9 +134,7 @@ function f_2_6 { # 2.6 - Set up Autologin
 }
 
 function f_2_7 { # 2.7 - Update script
-	wget -O las hbh7.com/dl/las
-	#mv las.1 las
-	#chmod +x las
+	wget -O las.new hbh7.com/dl/las && chmod +x las.new && mv las.new las
 	echo "Please rerun script to use the new version." 
 }
 
@@ -141,17 +147,19 @@ function f_2_8 { # 2.8 - Update script and install in /usr/bin
 }
 
 function f_2_9 { # 2.9 - Install/Update Docker and Compose
-	sudo apt-get remove docker docker-engine docker.io
+	sudo apt-get remove docker docker-engine docker.io containerd runc
 	sudo apt-get update
-	sudo apt-get install apt-transport-https ca-certificates curl software-properties-common -y
+	sudo apt-get install apt-transport-https ca-certificates curl gnupg2 software-properties-common -y
 	curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 	sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 	sudo apt-get update
-	sudo apt-get install docker-ce -y
+	sudo apt-get install docker-ce docker-ce-cli containerd.io -y
 	sudo docker run hello-world
-	curl -L https://github.com/docker/compose/releases/download/1.24.0/docker-compose-`uname -s`-`uname -m` | sudo tee -a /usr/local/bin/docker-compose > /dev/null 
+	curl -L https://github.com/docker/compose/releases/download/1.25.0/docker-compose-`uname -s`-`uname -m` | sudo tee -a /usr/local/bin/docker-compose > /dev/null 
 	sudo chmod +x /usr/local/bin/docker-compose
 	sudo docker-compose --version
+    sudo groupadd docker
+    sudo usermod -aG docker $USER
 }
 
 function f_2_10 { # 2.10 - Install Telegraf and configure to connect to Grafana
@@ -171,7 +179,7 @@ function f_2_10 { # 2.10 - Install Telegraf and configure to connect to Grafana
 }
 
 function f_2_11 { # 2.11 - Set up SSH keys
-        if grep -q ICG09r7lDNSKXWnE1Zrm44 ~/.ssh/authorized_keys; then
+    if grep -q ICG09r7lDNSKXWnE1Zrm44 ~/.ssh/authorized_keys; then
 		echo "Task already appears complete. Nothing to do."
 		return	
 	fi
@@ -186,11 +194,6 @@ function f_2_12 { # 2.12 - New sudo password
 }
 
 function f_2_13 { # 2.13 - Passwordless sudo
-	#echo "DANGER! WIP! Consider Control+C. 5s timer started."
-	#sleep 5
-	#echo '/#includedir \/etc\/sudoers.d /i\' >> changes.sed
-	#echo 'hbh7 ALL=(ALL) NOPASSWD: ALL' >> changes.sed
-	#sed -f changes.sed < sudoers | more
 	echo "hbh7	ALL = (ALL) NOPASSWD: ALL" | sudo tee -a /etc/sudoers
 }
 
@@ -208,14 +211,27 @@ function f_2_15 { # 2.15 - Install QEMU Guest Agent"
 	sudo apt-get install qemu-guest-agent
 }
 
-function f_2_16 { # 2.16 - Add bash aliases
-        if grep -q dfc ~/.bashrc; then
-		echo "Task already appears complete. Nothing to do."
-		return	
-	fi
+function f_2_16 { # 2.16 - Bash aliases, options
+    # TODO: Make this an individual check per command, maybe add code to fix duplicated ones that may be out there
+    #if grep -q dfc ~/.bashrc; then
+	#	echo "Task already appears complete. Nothing to do."
+	#	return	
+	#fi
 	
 	echo "alias dfc=\"dfc -d\"" | tee -a ~/.bashrc
-	echo "Please run \"source ~/.bashrc\" to reload, or log in again"
+    echo "HISTSIZE=" | tee -a ~/.bashrc
+    echo "HISTFILESIZE=" | tee -a ~/.bashrc
+    echo "
+mkcdir ()
+{
+    mkdir -p -- "$1" &&
+      cd -P -- "$1"
+}
+" | tee -a ~/.bashrc
+	echo "alias grep=\"grep --color=always\"" | tee -a ~/.bashrc
+	echo "alias ncdu=\"ncdu --confirm-quit\"" | tee -a ~/.bashrc
+	
+    echo "Please run \"source ~/.bashrc\" to reload, or log in again"
 }
 
 function f_2_17 { # 2.16 - Remove /boot partition
@@ -231,7 +247,9 @@ function f_2_17 { # 2.16 - Remove /boot partition
 }
 
 function f_2_18 { # 2.18 - Set timezone
-	 sudo cp /usr/share/zoneinfo/America/New_York /etc/localtime
+    sudo rm -rf /etc/localtime
+    sudo ln -s /usr/share/zoneinfo/America/New_York /etc/localtime
+    timedatectl set-timezone "America/New_York"
 }
 
 function f_2_19 { # 2.19 - Set up APT Cache server
@@ -262,7 +280,55 @@ function f_2_23 { # 2.23 - Clean up boot process
 	sudo update-grub
 }
 
+function f_2_24 { # 2.24 - Retain logs from before current boot
+    sudo mkdir /var/log/journal
+    echo "Storage=auto" | sudo tee -a /etc/systemd/journald.conf
+    sudo systemd-tmpfiles --create --prefix /var/log/journal
+    sudo systemctl restart systemd-journald
+}
 
+function f_2_25 { # 2.25 - Set up NTP
+    sudo sed -i 's/NTP=10.20.30.40/NTP=10.20.31.13/g' /etc/systemd/timesyncd.conf # Fix any that may have set the router
+    sudo sed -i 's/NTP=10.20.31.13/NTP=10.20.30.13/g' /etc/systemd/timesyncd.conf # Fix a typo in the IP
+    sudo sed -i 's/#NTP=/NTP=10.20.31.13/g' /etc/systemd/timesyncd.conf # Actual replacement if not configured
+    sudo systemctl daemon-reload
+    sudo systemctl restart systemd-timesyncd
+}
+
+function f_2_26 { # 2.26 - Proxmox VM Hotplug
+    if ! grep -q memhp_default_state /etc/default/grub; then
+        sudo sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="[^"]*/& memhp_default_state=online movable_node CONFIG_MOVABLE_NODE=YES/' /etc/default/grub
+	fi
+   echo "Please reboot to apply hotplug options" 
+    
+}
+
+function f_2_27 { # 2.27 - vim Options 
+    rm -rf ~/.vimrc
+    echo '
+set tabstop=4           " number of visual spaces per TAB
+set softtabstop=4       " number of spaces in tab when editing
+set shiftwidth=4        " number of spaces used for >> 
+set expandtab           " tabs are spaces
+colorscheme elflord     " PuTTY friendly color scheme
+syntax enable           " enable syntax processing
+set showcmd             " show command in bottom bar
+set cursorline          " highlight current line
+filetype indent on      " load filetype-specific indent files
+set showmatch           " highlight matching [{()}]
+set incsearch           " search as characters are entered
+set mouse-=a            " disable stupid mouse mode to allow pasting
+' > ~/.vimrc
+
+}
+
+function f_2_28 { # 2.28 - tmux Options 
+    rm -rf ~/.tmux.conf
+    echo '
+set-option -g history-limit 50000
+' > ~/.tmux.conf
+
+}
 
 # Handle input, calling appropriate functions 
 if [ "$input_variable" == "1-1" ]; then
@@ -294,11 +360,11 @@ elif [ "$input_variable" == "2-3" ]; then
 	f_2_3	
 
 elif [ "$input_variable" == "2-4" ]; then
-	echo "2.4  - Zero free space"
+    echo "2.4  - Zero free space"
 	f_2_4	
 
 elif [ "$input_variable" == "2-5" ]; then
-        echo "2.5  - Install Tools" # and do vnstat config fix
+    echo "2.5  - Install Tools" # and do vnstat config fix
 	f_2_5
 
 elif [ "$input_variable" == "2-6" ]; then
@@ -342,7 +408,7 @@ elif [ "$input_variable" == "2-15" ]; then
 	 f_2_15
 	
 elif [ "$input_variable" == "2-16" ]; then
-	echo "2.16 - Add bash aliases"
+	echo "2.16 - Bash aliases, options"
 	f_2_16
 	
 elif [ "$input_variable" == "2-17" ]; then
@@ -350,28 +416,45 @@ elif [ "$input_variable" == "2-17" ]; then
 	f_2_17
 
 elif [ "$input_variable" == "2-18" ]; then
-        echo "2.18 - Set timezone"
-        f_2_18
+    echo "2.18 - Set timezone"
+    f_2_18
 
 elif [ "$input_variable" == "2-19" ]; then
-        echo "2.19 - Set up APT Cache server"
-        f_2_19
+    echo "2.19 - Set up APT Cache server"
+    f_2_19
 
 elif [ "$input_variable" == "2-20" ]; then
-        echo "2.20 - Disable Unattended Upgrades"
-        f_2_20
+    echo "2.20 - Disable Unattended Upgrades"
+    f_2_20
 
 elif [ "$input_variable" == "2-21" ]; then
-        echo "2.21 - Set swappiness to 1"
-        f_2_21
+    echo "2.21 - Set swappiness to 1"
+    f_2_21
 
 elif [ "$input_variable" == "2-22" ]; then
-        echo "2.22 - Prefer IPV4"
-        f_2_22
+    echo "2.22 - Prefer IPV4"
+    f_2_22
 
 elif [ "$input_variable" == "2-23" ]; then
-        echo "2.23 - Clean up boot process"
-        f_2_23
+    echo "2.23 - Clean up boot process"
+    f_2_23
+
+elif [ "$input_variable" == "2-24" ]; then
+    echo "2.24 - Retain logs from before current boot"
+    f_2_24
+
+elif [ "$input_variable" == "2-25" ]; then
+    echo "2.25 - Set up NTP"
+    f_2_25
+elif [ "$input_variable" == "2-26" ]; then
+	echo "2.26 - Proxmox VM Hotplug"
+    f_2_26
+elif [ "$input_variable" == "2-27" ]; then
+	echo "2.27 - vim Options"
+    f_2_27
+elif [ "$input_variable" == "2-28" ]; then
+	echo "2.27 - tmux Options"
+    f_2_28
 
 else
 	echo "Invalid Option"
@@ -379,3 +462,4 @@ else
 fi
 
 echo "Done!"
+
