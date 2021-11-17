@@ -1,5 +1,5 @@
 #!/bin/bash
-version="7.3"
+version="7.4"
 
 InputArg=$1
 if [ -z "$InputArg" ] #if no args passed, display menu
@@ -288,9 +288,9 @@ function f_2_24 { # 2.24 - Retain logs from before current boot
 }
 
 function f_2_25 { # 2.25 - Set up NTP
-    sudo sed -i 's/NTP=10.20.30.40/NTP=10.20.31.13/g' /etc/systemd/timesyncd.conf # Fix any that may have set the router
+    sudo sed -i 's/NTP=10.20.30.40/NTP=10.20.30.13/g' /etc/systemd/timesyncd.conf # Fix any that may have set the router
     sudo sed -i 's/NTP=10.20.31.13/NTP=10.20.30.13/g' /etc/systemd/timesyncd.conf # Fix a typo in the IP
-    sudo sed -i 's/#NTP=/NTP=10.20.31.13/g' /etc/systemd/timesyncd.conf # Actual replacement if not configured
+    sudo sed -i 's/#NTP=/NTP=10.20.30.13/g' /etc/systemd/timesyncd.conf # Actual replacement if not configured
     sudo systemctl daemon-reload
     sudo systemctl restart systemd-timesyncd
 }
@@ -462,4 +462,3 @@ else
 fi
 
 echo "Done!"
-
