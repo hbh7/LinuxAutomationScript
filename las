@@ -1,5 +1,5 @@
 #!/bin/bash
-version="7.5"
+version="7.6"
 
 InputArg=$1
 if [ -z "$InputArg" ] #if no args passed, display menu
@@ -91,14 +91,14 @@ function f_2_0 { # Print Version
 }
 
 function f_2_1 { # Apt Cleanup
-	sudo apt autoremove -y
-	sudo apt clean -y
+	sudo apt-get autoremove -y
+	sudo apt-get clean -y
 }
 
 function f_2_2 { # Apt Full Upgrade
-	sudo apt update
-	sudo apt upgrade -y
-	sudo apt dist-upgrade -y
+	sudo apt-get update
+	sudo apt-get upgrade -y
+	sudo apt-get dist-upgrade -y
 }
 
 function f_2_3 { # Set do-release-upgrade to normal
@@ -111,7 +111,7 @@ function f_2_4 { # Zero free space
 }
 
 function f_2_5 { # Install Tools (and fix vnstat config)
-	sudo apt update && sudo apt install cifs-utils htop iotop vnstat tmux ncdu dfc rsync unzip zip openssh-server make git vim curl jq cowsay fortune sl cmatrix wget net-tools traceroute gcc g++ -y
+	sudo apt-get update && sudo apt-get install cifs-utils htop iotop vnstat tmux ncdu dfc rsync unzip zip openssh-server make git vim curl jq cowsay fortune sl cmatrix wget net-tools traceroute gcc g++ -y
 	sudo sed -i 's/eth0/ens18/g' /etc/vnstat.conf
 }
 
@@ -141,13 +141,13 @@ function f_2_8 { # Update script and install in /usr/bin
 }
 
 function f_2_9 { # Install/Update Docker and Compose
-	sudo apt remove docker docker-engine docker.io containerd runc
-	sudo apt update
-	sudo apt install apt-transport-https ca-certificates curl gnupg2 software-properties-common -y
+	sudo apt-get remove docker docker-engine docker.io containerd runc
+	sudo apt-get update
+	sudo apt-get install apt-transport-https ca-certificates curl gnupg2 software-properties-common -y
 	curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 	sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-	sudo apt update
-	sudo apt install docker-ce docker-ce-cli containerd.io -y
+	sudo apt-get update
+	sudo apt-get install docker-ce docker-ce-cli containerd.io -y
 	sudo docker run hello-world
 	curl -L https://github.com/docker/compose/releases/download/1.25.0/docker-compose-`uname -s`-`uname -m` | sudo tee -a /usr/local/bin/docker-compose > /dev/null 
 	sudo chmod +x /usr/local/bin/docker-compose
@@ -165,8 +165,8 @@ function f_2_10 { # Install Telegraf and configure to connect to Grafana
 	curl -sL https://repos.influxdata.com/influxdb.key | sudo apt-key add -
 	source /etc/lsb-release
 	echo "deb https://repos.influxdata.com/${DISTRIB_ID,,} ${DISTRIB_CODENAME} stable" | sudo tee /etc/apt/sources.list.d/influxdb.list
-	sudo apt update
-	sudo apt install telegraf
+	sudo apt-get update
+	sudo apt-get install telegraf
 	sudo scp hbh7@10.20.31.124:/etc/telegraf/telegraf.conf /etc/telegraf/telegraf.conf
 	sudo systemctl enable telegraf
 	sudo systemctl restart telegraf
@@ -201,8 +201,8 @@ function f_2_14 { # Sudo Insults
 }
 
 function f_2_15 { # Install QEMU Guest Agent"
-	sudo apt update
-	sudo apt install qemu-guest-agent
+	sudo apt-get update
+	sudo apt-get install qemu-guest-agent
 }
 
 function f_2_16 { # Bash aliases, options
@@ -250,7 +250,7 @@ function f_2_19 { # Set up APT Cache server
 }
 
 function f_2_20 { # Disable unattended upgrades
-	sudo apt remove unattended-upgrades -y
+	sudo apt-get remove unattended-upgrades -y
 }
 
 function f_2_21 { # Set swappiness to 1
@@ -265,10 +265,10 @@ function f_2_22 { # Prefer IPV4
 }
 
 function f_2_23 { # Clean up boot process
-	sudo apt purge btrfs-tools btrfs-progs -y
-	sudo apt purge cryptsetup-initramfs -y
-	sudo apt purge mdadm -y
-	sudo apt autoremove -y
+	sudo apt-get purge btrfs-tools btrfs-progs -y
+	sudo apt-get purge cryptsetup-initramfs -y
+	sudo apt-get purge mdadm -y
+	sudo apt-get autoremove -y
 	sudo update-initramfs -ukall
 	sudo update-grub
 }
