@@ -1,5 +1,5 @@
 #!/bin/bash
-version="7.6"
+version="7.7"
 
 InputArg=$1
 if [ -z "$InputArg" ] #if no args passed, display menu
@@ -129,7 +129,7 @@ function f_2_6 { # Set up Autologin
 }
 
 function f_2_7 { # Update script
-	wget -O las.new las.hbh7.com && chmod +x las.new && mv las.new las
+	wget -O las las.hbh7.com
 	echo "Please rerun script to use the new version." 
 }
 
