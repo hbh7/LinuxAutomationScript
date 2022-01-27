@@ -1,5 +1,5 @@
 #!/bin/bash
-version="7.7"
+version="7.8"
 
 InputArg=$1
 if [ -z "$InputArg" ] #if no args passed, display menu
@@ -42,6 +42,7 @@ then
 	echo "2.26 - Proxmox VM Hotplug"
 	echo "2.27 - vim Options"
 	echo "2.28 - tmux Options"
+	echo "2.29 - Disable APT Cache server"
 
 	read input_variable
 else
@@ -61,7 +62,6 @@ function f_1_1 { # Initial VM Setup Tasks
 	f_2_16 # Add bash aliases
 	f_2_18 # Set timezone
 	f_2_13 # Passwordless sudo
-	f_2_19 # Set up APT Cache server
 	f_2_20 # Disable unattended upgrades
 	f_2_21 # Set swappiness to 1
 	f_2_22 # Prefer IPV4
@@ -323,6 +323,10 @@ set-option -g history-limit 50000
 
 }
 
+function f_2_29 { # Disable APT Cache server
+	sudo rm /etc/apt/apt.conf.d/00proxy
+}
+
 # Handle input, calling appropriate functions 
 if [ "$input_variable" == "1-1" ]; then
 	echo "1.1 - Initial VM Setup Tasks"
@@ -448,6 +452,9 @@ elif [ "$input_variable" == "2-27" ]; then
 elif [ "$input_variable" == "2-28" ]; then
 	echo "2.27 - tmux Options"
 	f_2_28
+elif [ "$input_variable" == "2-29" ]; then
+	echo "2.29 - Disable APT Cache server"
+	f_2_29
 
 else
 	echo "Invalid Option"
