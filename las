@@ -1,5 +1,5 @@
 #!/bin/bash
-version="8.1"
+version="8.2"
 
 InputArg=$1
 if [ -z "$InputArg" ] #if no args passed, display menu
@@ -152,9 +152,9 @@ function f_2_9 { # Install/Update Docker and Compose
 	sudo usermod -aG docker $USER
 
 	# Compose V2
-	mkdir -p /usr/local/lib/docker/cli-plugins
-	curl -SL https://github.com/docker/compose/releases/download/v2.2.3/docker-compose-linux-x86_64 -o /usr/local/lib/docker/cli-plugins/docker-compose
-	chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+	sudo mkdir -p /usr/local/lib/docker/cli-plugins
+	sudo curl -SL https://github.com/docker/compose/releases/download/v2.2.3/docker-compose-linux-x86_64 -o /usr/local/lib/docker/cli-plugins/docker-compose
+	sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
 	
 	# Test
 	sudo docker run hello-world
