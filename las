@@ -1,5 +1,5 @@
 #!/bin/bash
-version="7.9"
+version="8.0"
 
 InputArg=$1
 if [ -z "$InputArg" ] #if no args passed, display menu
@@ -129,8 +129,7 @@ function f_2_6 { # Set up Autologin
 }
 
 function f_2_7 { # Update script
-	wget -O las las.hbh7.com
-	echo "Please rerun script to use the new version." 
+	wget -O las las.hbh7.com && echo "Please rerun script to use the new version." && exit
 }
 
 function f_2_8 { # Update script and install in /usr/bin
