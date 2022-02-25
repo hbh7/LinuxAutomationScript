@@ -1,5 +1,5 @@
 #!/bin/bash
-version="7.8"
+version="7.9"
 
 InputArg=$1
 if [ -z "$InputArg" ] #if no args passed, display menu
@@ -141,19 +141,25 @@ function f_2_8 { # Update script and install in /usr/bin
 }
 
 function f_2_9 { # Install/Update Docker and Compose
+	# Docker install
 	sudo apt-get remove docker docker-engine docker.io containerd runc
 	sudo apt-get update
 	sudo apt-get install apt-transport-https ca-certificates curl gnupg2 software-properties-common -y
 	curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-	sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+	echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 	sudo apt-get update
 	sudo apt-get install docker-ce docker-ce-cli containerd.io -y
-	sudo docker run hello-world
-	curl -L https://github.com/docker/compose/releases/download/1.25.0/docker-compose-`uname -s`-`uname -m` | sudo tee -a /usr/local/bin/docker-compose > /dev/null 
-	sudo chmod +x /usr/local/bin/docker-compose
-	sudo docker-compose --version
 	sudo groupadd docker
 	sudo usermod -aG docker $USER
+
+	# Compose V2
+	mkdir -p /usr/local/lib/docker/cli-plugins
+	curl -SL https://github.com/docker/compose/releases/download/v2.2.3/docker-compose-linux-x86_64 -o /usr/local/lib/docker/cli-plugins/docker-compose
+	chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+	
+	# Test
+	sudo docker run hello-world
+	sudo docker compose version
 }
 
 function f_2_10 { # Install Telegraf and configure to connect to Grafana
