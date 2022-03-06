@@ -1,5 +1,5 @@
 #!/bin/bash
-version="8.2"
+version="8.3"
 
 InputArg=$1
 if [ -z "$InputArg" ] #if no args passed, display menu
@@ -49,11 +49,9 @@ else
 	input_variable=$InputArg
 fi
 
-input_variable=${input_variable/./-}
-
 # Functions that actually do the options
 function f_1_1 { # Initial VM Setup Tasks
-	f_1_3  # Update Script, System, and Software
+	f_1_3_1  # Update Script, System, and Software
 	f_2_5  # Install Tools (and fix vnstat config)
 	f_2_6  # Set up autologin
 	f_2_11 # Set up SSH keys
@@ -80,8 +78,11 @@ function f_1_2 { # Disk Cleanup and Setting Optimization
 	sudo fstrim -av
 }
 
-function f_1_3 { # Update Script, System, and Software
-	f_2_7 # Update script
+function f_1_3_1 { # Update Script, System, and Software
+	wget -O las las.hbh7.com && ./las 1.3.2
+}
+
+function f_1_3_2 { # Update Script, System, and Software Part 2
 	f_2_2 # Apt Full Upgrade
 	f_1_2 # Disk Cleanup and Setting Optimization
 }
@@ -332,132 +333,139 @@ function f_2_29 { # Disable APT Cache server
 	sudo rm /etc/apt/apt.conf.d/00proxy
 }
 
-# Handle input, calling appropriate functions 
-if [ "$input_variable" == "1-1" ]; then
+# Handle input, calling appropriate functions
+if [ "$input_variable" == "1.1" ]; then
 	echo "1.1 - Initial VM Setup Tasks"
 	f_1_1	
 
-elif [ "$input_variable" == "1-2" ]; then
+elif [ "$input_variable" == "1.2" ]; then
 	echo "1.2 - Disk Cleanup"
 	f_1_2
 
-elif [ "$input_variable" == "1-3" ]; then
+elif [ "$input_variable" == "1.3" ]; then
 	echo "1.3 - Update Script, System, and Software"
-	f_1_3
+	f_1_3_1
+	
+elif [ "$input_variable" == "1.3.2" ]; then
+	f_1_3_2
 
-elif [ "$input_variable" == "2-0" ]; then
+elif [ "$input_variable" == "2.0" ]; then
 	echo "2.0 - LAS Version"
 	f_2_0
 	
-elif [ "$input_variable" == "2-1" ]; then
+elif [ "$input_variable" == "2.1" ]; then
 	echo "2.1  - Apt Cleanup"
 	f_2_1
 	
-elif [ "$input_variable" == "2-2" ]; then
+elif [ "$input_variable" == "2.2" ]; then
 	echo "2.2  - Apt Full Upgrade"
 	f_2_2
 
-elif [ "$input_variable" == "2-3" ]; then
+elif [ "$input_variable" == "2.3" ]; then
 	echo "2.3  - Set do-release-upgrade to normal"
 	f_2_3	
 
-elif [ "$input_variable" == "2-4" ]; then
+elif [ "$input_variable" == "2.4" ]; then
 	echo "2.4  - Zero free space"
 	f_2_4	
 
-elif [ "$input_variable" == "2-5" ]; then
+elif [ "$input_variable" == "2.5" ]; then
 	echo "2.5  - Install Tools"
 	f_2_5
 
-elif [ "$input_variable" == "2-6" ]; then
+elif [ "$input_variable" == "2.6" ]; then
 	echo "2.6  - Set up Autologin"
 	f_2_6
 	
-elif [ "$input_variable" == "2-7" ]; then
+elif [ "$input_variable" == "2.7" ]; then
 	echo "2.7  - Update script"
 	f_2_7
 
-elif [ "$input_variable" == "2-8" ]; then
+elif [ "$input_variable" == "2.8" ]; then
 	echo "2.8  - Update script and install in /usr/bin"
 	f_2_8
 	
-elif [ "$input_variable" == "2-9" ]; then
+elif [ "$input_variable" == "2.9" ]; then
 	echo "2.9  - Install/Update Docker and Compose"
 	f_2_9
 	
-elif [ "$input_variable" == "2-10" ]; then
+elif [ "$input_variable" == "2.10" ]; then
 	echo "2.10 - Install Telegraf and configure to connect to Grafana"
 	f_2_10
 	
-elif [ "$input_variable" == "2-11" ]; then
+elif [ "$input_variable" == "2.11" ]; then
 	echo "2.11 - Set up SSH keys"
 	f_2_11
 	
-elif [ "$input_variable" == "2-12" ]; then
+elif [ "$input_variable" == "2.12" ]; then
 	echo "2.12 - New sudo password"
 	f_2_12
 
-elif [ "$input_variable" == "2-13" ]; then
+elif [ "$input_variable" == "2.13" ]; then
 	echo "2.13 - Passwordless sudo"
 	f_2_13
 		
-elif [ "$input_variable" == "2-14" ]; then
+elif [ "$input_variable" == "2.14" ]; then
 	echo "2.14 - Sudo Insults"
 	f_2_14
 	
-elif [ "$input_variable" == "2-15" ]; then
+elif [ "$input_variable" == "2.15" ]; then
 	 echo "2.15 - Install QEMU Guest Agent" 
 	 f_2_15
 	
-elif [ "$input_variable" == "2-16" ]; then
+elif [ "$input_variable" == "2.16" ]; then
 	echo "2.16 - Bash aliases, options"
 	f_2_16
 	
-elif [ "$input_variable" == "2-17" ]; then
+elif [ "$input_variable" == "2.17" ]; then
 	echo "2.17 - Remove /boot partition"
 	f_2_17
 
-elif [ "$input_variable" == "2-18" ]; then
+elif [ "$input_variable" == "2.18" ]; then
 	echo "2.18 - Set timezone"
 	f_2_18
 
-elif [ "$input_variable" == "2-19" ]; then
+elif [ "$input_variable" == "2.19" ]; then
 	echo "2.19 - Set up APT Cache server"
 	f_2_19
 
-elif [ "$input_variable" == "2-20" ]; then
+elif [ "$input_variable" == "2.20" ]; then
 	echo "2.20 - Disable Unattended Upgrades"
 	f_2_20
 
-elif [ "$input_variable" == "2-21" ]; then
+elif [ "$input_variable" == "2.21" ]; then
 	echo "2.21 - Set swappiness to 1"
 	f_2_21
 
-elif [ "$input_variable" == "2-22" ]; then
+elif [ "$input_variable" == "2.22" ]; then
 	echo "2.22 - Prefer IPV4"
 	f_2_22
 
-elif [ "$input_variable" == "2-23" ]; then
+elif [ "$input_variable" == "2.23" ]; then
 	echo "2.23 - Clean up boot process"
 	f_2_23
 
-elif [ "$input_variable" == "2-24" ]; then
+elif [ "$input_variable" == "2.24" ]; then
 	echo "2.24 - Retain logs from before current boot"
 	f_2_24
 
-elif [ "$input_variable" == "2-25" ]; then
+elif [ "$input_variable" == "2.25" ]; then
 	echo "2.25 - Set up NTP"
 	f_2_25
-elif [ "$input_variable" == "2-26" ]; then
+	
+elif [ "$input_variable" == "2.26" ]; then
 	echo "2.26 - Proxmox VM Hotplug"
 	f_2_26
-elif [ "$input_variable" == "2-27" ]; then
+	
+elif [ "$input_variable" == "2.27" ]; then
 	echo "2.27 - vim Options"
 	f_2_27
-elif [ "$input_variable" == "2-28" ]; then
+	
+elif [ "$input_variable" == "2.28" ]; then
 	echo "2.27 - tmux Options"
 	f_2_28
-elif [ "$input_variable" == "2-29" ]; then
+	
+elif [ "$input_variable" == "2.29" ]; then
 	echo "2.29 - Disable APT Cache server"
 	f_2_29
 
