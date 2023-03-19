@@ -1,5 +1,5 @@
 #!/bin/bash
-version="8.4"
+version="8.5"
 
 InputArg=$1
 if [ -z "$InputArg" ] #if no args passed, display menu
@@ -328,6 +328,8 @@ filetype indent on      " load filetype-specific indent files
 set showmatch           " highlight matching [{()}]
 set incsearch           " search as characters are entered
 set mouse-=a            " disable stupid mouse mode to allow pasting
+set undofile            " Maintain undo history between sessions
+set undodir=~/.vim/undodir " Store undo history in home dir instead of next to file for cleanliness
 ' > ~/.vimrc
 
 }
