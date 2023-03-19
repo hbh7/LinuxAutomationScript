@@ -1,5 +1,5 @@
 #!/bin/bash
-version="8.3"
+version="8.4"
 
 InputArg=$1
 if [ -z "$InputArg" ] #if no args passed, display menu
@@ -114,6 +114,17 @@ function f_2_4 { # Zero free space
 function f_2_5 { # Install Tools (and fix vnstat config)
 	sudo apt-get update && sudo apt-get install cifs-utils htop iotop vnstat tmux ncdu dfc rsync unzip zip openssh-server make git vim curl jq cowsay fortune sl cmatrix wget net-tools traceroute gcc g++ -y
 	sudo sed -i 's/eth0/ens18/g' /etc/vnstat.conf
+	
+	# Install bat
+	wget -O bat_0.22.1_amd64.deb https://github.com/sharkdp/bat/releases/download/v0.22.1/bat_0.22.1_amd64.deb
+	sudo apt-get install ./bat_0.22.1_amd64.deb -y
+	rm bat_0.22.1_amd64.deb
+	
+	# Install btop if available
+	sudo apt-get install btop -y
+	
+	# Install exa if available
+	sudo apt-get install exa -y
 }
 
 function f_2_6 { # Set up Autologin
