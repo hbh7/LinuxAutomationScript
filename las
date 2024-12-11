@@ -1,5 +1,5 @@
 #!/bin/bash
-version="8.5"
+version="8.6"
 
 InputArg=$1
 if [ -z "$InputArg" ] #if no args passed, display menu
@@ -123,8 +123,8 @@ function f_2_5 { # Install Tools (and fix vnstat config)
 	# Install btop if available
 	sudo apt-get install btop -y
 	
-	# Install exa if available
-	sudo apt-get install exa -y
+	# Install eza if available
+	sudo apt-get install eza -y
 }
 
 function f_2_6 { # Set up Autologin
